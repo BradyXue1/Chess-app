@@ -183,6 +183,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const piece = document.createElement("img");
                 piece.src = `pieces/${pieceType}.png`; 
                 piece.classList.add("piece", pieceType);
+                const [color, type] = pieceType.split('-');
+                piece.setAttribute("color", color); 
+                piece.setAttribute("type", type);
                 square.appendChild(piece);
             }
 

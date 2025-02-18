@@ -43,13 +43,18 @@ function allowDrop(ev){
 
 function drag(ev) {
     const piece = ev.target;
-    ev.dataTransfer.setData("text", piece.id); 
+    ev.dataTransfer.setData("text", piece.id);  
 }
 
 function drop(ev) {
     ev.preventDefault();
     let data = ev.dataTransfer.getData("text");
     const piece = document.getElementById(data);
-    const destinationSquare = ev.currentTarget;
-    destinationSquare.appendChild(piece);
+    const pieceColor=piece.getAttribute("color");
+    if(isWhiteTurn && pieceColor=="White" || !isWhiteTurn && pieceColor=="Black"){
+        console.log("Piece:", piece);
+        const destinationSquare = ev.currentTarget;
+        destinationSquare.appendChild(piece);
+        isWhiteTurn = !isWhiteTurn
+    }    
 }
