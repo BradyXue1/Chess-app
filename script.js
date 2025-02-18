@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const files = ["a", "b", "c", "d", "e", "f", "g", "h"]; 
     const ranks = [8, 7, 6, 5, 4, 3, 2, 1]; 
 
-    //regular setup
+    //standard setup
     const standardStartingPosition = [
         ["Black-Rook", "Black-Knight", "Black-Bishop", "Black-Queen", "Black-King", "Black-Bishop", "Black-Knight", "Black-Rook"], // Rank 8
         ["Black-Pawn", "Black-Pawn", "Black-Pawn", "Black-Pawn", "Black-Pawn", "Black-Pawn", "Black-Pawn", "Black-Pawn"],       // Rank 7
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["White-Rook", "White-Knight", "White-Bishop", "White-Queen", "White-King", "White-Bishop", "White-Knight", "White-Rook"] // Rank 1
     ];
 
-    //Fischer random setup
+    //Fischer random
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1));
