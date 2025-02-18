@@ -68,13 +68,18 @@ document.addEventListener("DOMContentLoaded", () => {
         let allPieces = [...blackPieces, ...whitePieces];
         let valid2=false;
         while (!valid2) {
+            valid2=true;
             shuffle(allPieces);
-            if (allPieces[0] !== "White-Pawn" && allPieces[1] !== "White-Pawn" && allPieces[2] !== "White-Pawn" && allPieces[3] !== "White-Pawn" && 
-                allPieces[4] !== "White-Pawn" && allPieces[5] !== "White-Pawn" && allPieces[6] !== "White-Pawn" && allPieces[7] !== "White-Pawn" &&
-                allPieces[24] !== "Black-Pawn" && allPieces[25] !== "Black-Pawn" && allPieces[26] !== "Black-Pawn" && allPieces[27] != "Black-Pawn" &&
-                allPieces[28] != "Black-Pawn" && allPieces[29] != "Black-Pawn" && allPieces[30] != "Black-Pawn" && allPieces[31] !== "Black-Pawn"){
-                    valid2 = true;
+            for (let i=0; i<8; i++){
+                if(allPieces[i] =="White-Pawn"){
+                    valid2=false;
                 }
+            }
+            for (let i=24; i<31; i++){
+                if(allPieces[i] =="Black-Pawn"){
+                    valid2=false;
+                }
+            }
         }
 
         console.log("All Pieces: " + allPieces); //debug
