@@ -175,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     pieceType = TrulyRandomPosition[row][col];
                     break;
                 default:
-                    alert("That's not an option dumbass, you're getting standard");
                     pieceType = standardStartingPosition[row][col];
                     break;
             }

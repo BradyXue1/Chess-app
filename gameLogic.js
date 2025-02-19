@@ -1,4 +1,3 @@
-let LegalSquares = [];
 let isWhiteTurn = true;
 const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
@@ -43,7 +42,9 @@ function allowDrop(ev){
 
 function drag(ev) {
     const piece = ev.target;
-    ev.dataTransfer.setData("text", piece.id);  
+    ev.dataTransfer.setData("text", piece.id); 
+    const startingSquareID = piece.parentNode.id;
+    getPossibleMoves(startingSquareID,piece);
 }
 
 function drop(ev) {
@@ -51,10 +52,35 @@ function drop(ev) {
     let data = ev.dataTransfer.getData("text");
     const piece = document.getElementById(data);
     const pieceColor=piece.getAttribute("color");
+    const destinationSquare = ev.currentTarget;
+    let destinationSquareId = destinationSquare.id;
     if(isWhiteTurn && pieceColor=="White" || !isWhiteTurn && pieceColor=="Black"){
-        console.log("Piece:", piece);
-        const destinationSquare = ev.currentTarget;
-        destinationSquare.appendChild(piece);
-        isWhiteTurn = !isWhiteTurn
+        if(isSquareOccupied(destinationSquare)=="empty"){
+            destinationSquare.appendChild(piece);
+            isWhiteTurn = !isWhiteTurn;
+            console.log(isWhiteTurn); //debug
+        }
+        else if(isSquareOccupied(destinationSquare) !== "empty"){
+            while(destinationSquare.firstChild){
+                destinationSquare.removeChild(destinationSquare.firstChild);
+            }
+            destinationSquare.appendChild(piece);
+            isWhiteTurn = !isWhiteTurn;
+            console.log(isWhiteTurn); //debug
+        }
     }    
+}
+
+function getPossibleMoves(startSquare,piece){
+    const pieceColor=piece.getAttribute("color");
+}
+
+function isSquareOccupied(square){
+    if(square.querySelector(".piece")){
+        const color = square.querySelector(".piece").getAttribute("color");
+        return color;
+    }
+    else {
+        return "empty";
+    }
 }
