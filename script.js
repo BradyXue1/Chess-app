@@ -10,7 +10,6 @@ class ChessBoard {
         this.files = ["a", "b", "c", "d", "e", "f", "g", "h"];
         this.ranks = [8, 7, 6, 5, 4, 3, 2, 1];
         this.mode = mode;
-
         this.initBoard();
     }
 
@@ -58,7 +57,7 @@ class ChessBoard {
 
     addPiece(square, pieceType) {
         const piece = document.createElement("img");
-        piece.src = `pieces/${pieceType}.png`;
+        piece.src = `images/${pieceType}.png`;
         piece.classList.add("piece", pieceType);
 
         const [color, type] = pieceType.split("-");
