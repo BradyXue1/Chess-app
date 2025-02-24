@@ -80,7 +80,7 @@ export class Knight extends Piece {
         }
         if(ODTLSquare && isSquareOccupied(ODTLSquare) === "White" && this.color === "Black"){
             moves.push(ODTLMove);    
-        }
+        }  
 
         let OUTLMove = `${String.fromCharCode(97 + column-2)}${row+1}`; //One Up Two Left
         let OUTLSquare=document.getElementById(OUTLMove);
