@@ -1,9 +1,9 @@
-import { Rook } from "./Rook.js";
-import { Knight } from "./Knight.js";
-import { Bishop } from "./Bishop.js";
-import { Queen } from "./Queen.js";
-import { King } from "./King.js";
-import { Pawn } from "./Pawn.js";
+import { Rook } from "./rook.js";
+import { Knight } from "./knight.js";
+import { Bishop } from "./bishop.js";
+import { Queen } from "./queen.js";
+import { King } from "./king.js";
+import { Pawn } from "./pawn.js";
 import { isSquareOccupied } from "./util.js";
 console.log("Board is being run");
 export class Board {
@@ -11,7 +11,7 @@ export class Board {
         this.squares = Array.from(document.getElementsByClassName("square"));
         this.pieceElements = Array.from(document.getElementsByClassName('piece')); 
         console.log(this.pieceElements);
-        this.pieces = []; // Initialize as an empty array to hold piece instances
+        this.pieces = []; 
         this.isWhiteTurn = true;
         this.setUpSquares();
         this.setUpPieces();
@@ -21,7 +21,6 @@ export class Board {
         this.squares.forEach((square, i) => {
             square.addEventListener("dragover", this.allowDrop);
             square.addEventListener("drop", (ev) => this.drop(ev));
-
             let row = 8 - Math.floor(i / 8);
             let column = String.fromCharCode(97 + (i % 8));
             square.id = column + row;
@@ -89,7 +88,44 @@ export class Board {
                     destinationSquare.appendChild(piece);
                     this.isWhiteTurn = !this.isWhiteTurn;
                 }
+                if(pieceInstance.getType() === "White-Pawn" && pieceInstance.getRow() === 8){
+                    console.log("promote me");
+                    this.promote(pieceInstance, destinationSquare);
+                }
+                if(pieceInstance.getType() === "Black-Pawn" && pieceInstance.getRow() === 1){
+                    console.log("promote me");
+                    this.promote(pieceInstance, destinationSquare);
+                }
             }
         }
+    }
+
+    promote(pawn, square){
+        console.log("promoting")
+        let type = prompt("Promote to Queen, Rook, Bishop, or Knight?", "Queen");
+        console.log(type);
+        let newPiece;
+        switch(type){
+            case "Queen":
+                newPiece=new Queen(pawn.element);
+                break;
+            case "Rook":
+                newPiece=new Rook(pawn.element);
+                break;
+            case "Bishop":
+                newPiece=new Bishop(pawn.element);
+                break;
+            case "Knight":
+                newPiece=new Knight(pawn.element);
+                break;
+            default:
+                newPiece=new Queen(pawn.element);
+                break;
+        }
+        newPiece.element.src = `images/${pawn.element.getAttribute("color")}-${type}.png`;
+        newPiece.element.setAttribute("type",type);
+        square.appendChild(newPiece.element);
+        this.pieces = this.pieces.filter(p => p !== pawn);
+        this.pieces.push(newPiece);
     }
 }

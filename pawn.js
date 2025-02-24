@@ -42,6 +42,7 @@ export class Pawn extends Piece {
             moves.push(diagonalRight);
         }
         console.log(moves)
+
         return moves;
     }
 }
