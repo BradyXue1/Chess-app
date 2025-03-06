@@ -3,10 +3,10 @@ import { isSquareOccupied } from "./util.js";
 export class Pawn extends Piece {
     constructor(element) {
         super(element);
+        this.promoted=false;
     }
     getPossibleMoves(startSquare) {
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])]; // This gets the starting square coords
-        console.log(column,row);
         let moves = [];
         let direction = this.color === "White" ? 1 : -1; // 1 if white -1 if Black
         let forward = `${String.fromCharCode(97 + column)}${row + direction}`; // Which move is forward?
@@ -41,7 +41,6 @@ export class Pawn extends Piece {
         if (rightSquare && isSquareOccupied(rightSquare) === "White" && this.color === "Black") {
             moves.push(diagonalRight);
         }
-        console.log(moves)
 
         return moves;
     }

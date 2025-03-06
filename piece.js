@@ -18,7 +18,7 @@ export class Piece {
     }
 
     getPossibleMoves(startSquare, piece) {
-        console.log(`Calculating moves for ${piece.type} at ${startSquare}`); //debug
+        
     }
 
     getType(){
@@ -26,7 +26,7 @@ export class Piece {
     }
 
     getCol(){
-        return this.parentSquare.charCodeAt(0) - 97;
+        return this.parentSquare.id.charCodeAt(0) - 97;
     }
 
     getRow(){

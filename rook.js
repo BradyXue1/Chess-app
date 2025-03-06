@@ -3,10 +3,10 @@ import { isSquareOccupied } from "./util.js";
 export class Rook extends Piece {
     constructor(element) {
         super(element);
+        this.hasBeenMoved=false;
     }
     getPossibleMoves(startSquare){
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])];
-        console.log(column, row);
         let moves = [];
 
         let up = true;
@@ -14,7 +14,6 @@ export class Rook extends Piece {
         while(up){
             up=false;
             let potentialMove = `${String.fromCharCode(97+column)}${upRow + 1}`;
-            console.log(potentialMove);
             upRow += 1;
             let potentialSquare=document.getElementById(potentialMove);
             if(potentialSquare && isSquareOccupied(potentialSquare) === "empty"){
@@ -85,8 +84,14 @@ export class Rook extends Piece {
                 moves.push(potentialMove);
             }
         }
-
-        console.log(moves);
         return moves;
+    }
+
+    getMoved(){
+        return this.hasBeenMoved;
+    }
+
+    setMoved(){
+        this.hasBeenMoved=true;
     }
 }

@@ -6,7 +6,6 @@ export class Bishop extends Piece {
     }
     getPossibleMoves(startSquare){ //Bus code
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])]; // This gets the starting square coords
-        console.log(column,row);
         let moves = [];
 
         let upAndLeft=true;
@@ -92,7 +91,6 @@ export class Bishop extends Piece {
                 moves.push(potentialMove);
             }
         }
-        console.log(moves);
         return moves;
     }
 }

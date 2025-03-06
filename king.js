@@ -3,10 +3,10 @@ import { isSquareOccupied } from "./util.js";
 export class King extends Piece {
     constructor(element) {
         super(element);
+        this.hasBeenMoved=false;
     }
     getPossibleMoves(startSquare){
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])];
-        console.log(column,row);
         let moves = [];
 
         let upMove = `${String.fromCharCode(97 + column)}${row+1}`;
@@ -32,6 +32,13 @@ export class King extends Piece {
         if(upAndRightSquare && isSquareOccupied(upAndRightSquare) === "White" && this.color === "Black"){
             moves.push(upAndRightMove);    
         }
+        const f2Square = document.getElementById("f2");
+        const f2Piece = f2Square.querySelector(".piece");
+        if(this.color === f2Piece?.getAttribute("color")){
+            moves=moves.filter(p => p !== "f2");
+        }
+
+
 
         let rightMove = `${String.fromCharCode(97 + column + 1)}${row}`;
         let rightSquare=document.getElementById(rightMove);
@@ -104,8 +111,14 @@ export class King extends Piece {
         if(upAndLeftSquare && isSquareOccupied(upAndLeftSquare) === "White" && this.color === "Black"){
             moves.push(upAndLeftMove);    
         }
-
-        console.log(moves);
         return moves;
+    }
+
+    getMoved(){
+        return this.hasBeenMoved;
+    }
+
+    setMoved(){
+        this.hasBeenMoved=true;
     }
 }

@@ -6,7 +6,6 @@ export class Queen extends Piece {
     }
     getPossibleMoves(startSquare){
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])];
-        console.log(column, row);
         let moves = [];
 
         let up = true;
@@ -14,7 +13,6 @@ export class Queen extends Piece {
         while(up){
             up=false;
             let potentialMove = `${String.fromCharCode(97+column)}${upRow + 1}`;
-            console.log(potentialMove);
             upRow += 1;
             let potentialSquare=document.getElementById(potentialMove);
             if(potentialSquare && isSquareOccupied(potentialSquare) === "empty"){
@@ -169,7 +167,6 @@ export class Queen extends Piece {
                 moves.push(potentialMove);
             }
         }
-        console.log(moves);
         return moves;
     }
 }

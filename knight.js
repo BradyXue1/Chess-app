@@ -7,7 +7,6 @@ export class Knight extends Piece {
 
     getPossibleMoves(startSquare){
         const [column, row] = [startSquare.charCodeAt(0) - 97, parseInt(startSquare[1])];
-        console.log(column, row);
         let moves = [];
 
         let TUORMove = `${String.fromCharCode(97 + column + 1)}${row+2}`; //Two Up One Right
@@ -105,8 +104,6 @@ export class Knight extends Piece {
         if(TUOLSquare && isSquareOccupied(TUOLSquare) === "White" && this.color === "Black"){
             moves.push(TUOLMove);    
         }
-
-        console.log(moves);
         return moves;
     }
 }
