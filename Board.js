@@ -71,49 +71,27 @@ export class Board {
         const destinationSquare = ev.currentTarget;
         const pieceInstance = this.pieces.find(p => p.id === data);
         const possibleMoves = pieceInstance.getPossibleMoves(pieceInstance.parentSquare.id, pieceInstance);
-        if ((this.isWhiteTurn && pieceColor === "White") || (!this.isWhiteTurn && pieceColor === "Black")) {
-            if(possibleMoves.includes(destinationSquare.id)){
-                pieceInstance.parentSquare = destinationSquare;
-                if (isSquareOccupied(destinationSquare) === "empty") {
-                    destinationSquare.appendChild(piece);
-                    this.isWhiteTurn = !this.isWhiteTurn;
-                } else {
-                    while (destinationSquare.firstChild) {
-                        destinationSquare.removeChild(destinationSquare.firstChild);
-                    }
-                    destinationSquare.appendChild(piece);
-                    this.isWhiteTurn = !this.isWhiteTurn;
-                }
-                if(pieceInstance.getType() === "White-Pawn" && pieceInstance.getRow() === 8 && pieceInstance.promoted === false){
-                    this.promote(pieceInstance, destinationSquare);
-                    pieceInstance.promoted = true;
-                }
-                if(pieceInstance.getType() === "Black-Pawn" && pieceInstance.getRow() === 1 && pieceInstance.promoted === false){
-                    this.promote(pieceInstance, destinationSquare);
-                    pieceInstance.promoted = true;
-                }
-                if(pieceInstance.getType() === "White-King" || pieceInstance.getType() === "Black-King"){
-                    pieceInstance.setMoved();
-                }
+        if ((this.isWhiteTurn && pieceColor === "White")) {
+            if(this.isInCheck("White", this.pieces)){
+                console.log("white check move");
+                const validMoves=this.getValidMovesWhenInCheck("White");
+                this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves);
             }
-            if(pieceInstance.getType() === "White-King" && destinationSquare.id === "g1"){
-                let rook = this.pieces.find(p => p.getType() === "White-Rook" && p.element.getAttribute("color") === "White" && p.getCol() === 7);
-                this.castle(pieceInstance, rook, "Black", 7, this.pieces);
+            else {
+                console.log("white move");
+                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves);
             }
-            if(pieceInstance.getType() === "White-King" && destinationSquare.id === "c1"){
-                let rook = this.pieces.find(p => p.getType() === "White-Rook" && p.element.getAttribute("color") === "White" && p.getCol() === 0);
-                this.castle(pieceInstance, rook, "Black", 0, this.pieces);
+        }
+        if(!this.isWhiteTurn && pieceColor === "Black"){
+            if(this.isInCheck("Black", this.pieces)){
+                console.log("black check move");
+                const validMoves=this.getValidMovesWhenInCheck("Black");
+                this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves)
             }
-            if(pieceInstance.getType() === "Black-King" && destinationSquare.id === "g8"){
-                let rook = this.pieces.find(p => p.getType() === "Black-Rook" && p.element.getAttribute("color") === "Black" && p.getCol() === 7); 
-                this.castle(pieceInstance, rook, "White", 7, this.pieces);
+            else {
+                console.log("black move");
+                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves);
             }
-            if(pieceInstance.getType() === "White-King" && destinationSquare.id === "c8"){
-                let rook = this.pieces.find(p => p.getType() === "Black-Rook" && p.element.getAttribute("color") === "Black" && p.getCol() === 0);
-                this.castle(pieceInstance, rook, "White", 0, this.pieces);
-            }
-            this.isInCheck("White", this.pieces);
-            this.isInCheck("Black", this.pieces);
         }
     }
 
@@ -158,15 +136,12 @@ export class Board {
     
 
     findKing(color){
-        console.log(this.pieces.find(p => p.getType() === color+"-King"));
         return this.pieces.find(p => p.getType() === color+"-King");
     }
 
     isInCheck(color, pieces) {
         let king = this.findKing(color);
         const kingPosition = king.parentSquare.id; 
-        console.log(`Is ${color} in check?`);
-        console.log(this.isUnderAttack(kingPosition, pieces, color === "White" ? "Black" : "White"));
         return this.isUnderAttack(kingPosition, pieces, color === "White" ? "Black" : "White");
     }
     
@@ -226,4 +201,99 @@ export class Board {
             this.isWhiteTurn = !this.isWhiteTurn;
         }
     } 
+
+    getValidMovesWhenInCheck(color) {
+        const legalMoves = [];
+        for (let piece of this.pieces) {
+            if (piece.color === color) {
+                const possibleMoves = piece.getPossibleMoves(piece.parentSquare.id);
+                for (let move of possibleMoves) {
+                    const originalSquare = piece.parentSquare.id;
+                    const targetSquare = document.getElementById(move);
+                    const capturedPiece = targetSquare.querySelector('.piece');
+                    targetSquare.appendChild(piece.element);
+                    piece.parentSquare = targetSquare;
+                    if (capturedPiece) {
+                        targetSquare.removeChild(capturedPiece);
+                    }
+                    this.inCheck = false;
+                    if (!this.isInCheck(color, this.pieces)) {
+                        legalMoves.push({ piece: piece, move: move });
+                    }
+                    document.getElementById(originalSquare).appendChild(piece.element);
+                    piece.parentSquare = document.getElementById(originalSquare);
+                    if (capturedPiece) {
+                        targetSquare.appendChild(capturedPiece);
+                    }
+                }
+            }
+        }
+        return legalMoves;
+    }
+
+    makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves) {
+        console.log(pieceInstance);
+        console.log(destinationSquare.id);
+        console.log(validMoves);
+        let isValid = false;
+        for (let move of validMoves) {
+            if (move.piece === pieceInstance && move.move === destinationSquare.id) {
+                isValid = true;
+            }
+        }
+        if (isValid) {
+            console.log("valid");
+            pieceInstance.parentSquare = destinationSquare;
+            while (destinationSquare.firstChild) {
+                console.log(destinationSquare.firstChild);
+                destinationSquare.removeChild(destinationSquare.firstChild);
+            }
+            destinationSquare.appendChild(piece);
+            this.isWhiteTurn = !this.isWhiteTurn;
+        }
+    }
+
+    makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves) {
+        if (possibleMoves.includes(destinationSquare.id)) {
+            pieceInstance.parentSquare = destinationSquare;
+            while (destinationSquare.firstChild) {
+                console.log(destinationSquare.firstChild);
+                destinationSquare.removeChild(destinationSquare.firstChild);
+            }
+            destinationSquare.appendChild(piece);
+            this.isWhiteTurn = !this.isWhiteTurn;
+
+            if (pieceInstance.getType() === "White-Pawn" && pieceInstance.getRow() === 8 && pieceInstance.promoted === false) {
+                this.promote(pieceInstance, destinationSquare);
+                pieceInstance.promoted = true;
+            }
+            if (pieceInstance.getType() === "Black-Pawn" && pieceInstance.getRow() === 1 && pieceInstance.promoted === false) {
+                this.promote(pieceInstance, destinationSquare);
+                pieceInstance.promoted = true;
+            }
+            if (pieceInstance.getType() === "White-King" || pieceInstance.getType() === "Black-King") {
+                pieceInstance.setMoved();
+            }
+            if (pieceInstance.getType() === "White-Rook" || pieceInstance.getType() === "Black-Rook") {
+                pieceInstance.setMoved();
+            }
+        }
+
+        if (pieceInstance.getType() === "White-King" && destinationSquare.id === "g1") {
+            let rook = this.pieces.find(p => p.getType() === "White-Rook" && p.element.getAttribute("color") === "White" && p.getCol() === 7);
+            this.castle(pieceInstance, rook, "Black", 7, this.pieces);
+        }
+        if (pieceInstance.getType() === "White-King" && destinationSquare.id === "c1") {
+            let rook = this.pieces.find(p => p.getType() === "White-Rook" && p.element.getAttribute("color") === "White" && p.getCol() === 0);
+            this.castle(pieceInstance, rook, "Black", 0, this.pieces);
+        }
+        if (pieceInstance.getType() === "Black-King" && destinationSquare.id === "g8") {
+            let rook = this.pieces.find(p => p.getType() === "Black-Rook" && p.element.getAttribute("color") === "Black" && p.getCol() === 7);
+            this.castle(pieceInstance, rook, "White", 7, this.pieces);
+        }
+        if (pieceInstance.getType() === "White-King" && destinationSquare.id === "c8") {
+            let rook = this.pieces.find(p => p.getType() === "Black-Rook" && p.element.getAttribute("color") === "Black" && p.getCol() === 0);
+            this.castle(pieceInstance, rook, "White", 0, this.pieces);
+        }
+    }
 }
