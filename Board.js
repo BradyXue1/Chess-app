@@ -73,24 +73,25 @@ export class Board {
         const possibleMoves = pieceInstance.getPossibleMoves(pieceInstance.parentSquare.id, pieceInstance);
         if ((this.isWhiteTurn && pieceColor === "White")) {
             if(this.isInCheck("White", this.pieces)){
-                console.log("white check move");
+                console.log("white is in check!");
                 const validMoves=this.getValidMovesWhenInCheck("White");
                 this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves);
             }
             else {
-                console.log("white move");
-                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves);
+                const validMoves=this.getValidMovesWhenNotInCheck("White", pieceInstance, possibleMoves);
+                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, validMoves);
+                console.log()
             }
         }
         if(!this.isWhiteTurn && pieceColor === "Black"){
             if(this.isInCheck("Black", this.pieces)){
-                console.log("black check move");
+                console.log("Black is in check!");
                 const validMoves=this.getValidMovesWhenInCheck("Black");
                 this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves)
             }
             else {
-                console.log("black move");
-                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves);
+                const validMoves=this.getValidMovesWhenNotInCheck("Black", pieceInstance, possibleMoves);
+                this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, validMoves);
             }
         }
     }
@@ -151,7 +152,6 @@ export class Board {
             console.log("A piece has already moved. Cannot castle.");
             return false;
         }
-        
         let kingRow = king.getRow();
         let rookCol = rook.getCol();
         let path = [];
@@ -205,36 +205,38 @@ export class Board {
     getValidMovesWhenInCheck(color) {
         const legalMoves = [];
         for (let piece of this.pieces) {
-            if (piece.color === color) {
-                const possibleMoves = piece.getPossibleMoves(piece.parentSquare.id);
-                for (let move of possibleMoves) {
-                    const originalSquare = piece.parentSquare.id;
-                    const targetSquare = document.getElementById(move);
-                    const capturedPiece = targetSquare.querySelector('.piece');
-                    targetSquare.appendChild(piece.element);
-                    piece.parentSquare = targetSquare;
-                    if (capturedPiece) {
-                        targetSquare.removeChild(capturedPiece);
-                    }
-                    this.inCheck = false;
-                    if (!this.isInCheck(color, this.pieces)) {
-                        legalMoves.push({ piece: piece, move: move });
-                    }
-                    document.getElementById(originalSquare).appendChild(piece.element);
-                    piece.parentSquare = document.getElementById(originalSquare);
-                    if (capturedPiece) {
-                        targetSquare.appendChild(capturedPiece);
-                    }
+            if (piece.color !== color) continue;
+            const possibleMoves = piece.getPossibleMoves(piece.parentSquare.id);
+            for (let move of possibleMoves) {
+                const originalSquare = piece.parentSquare;
+                const targetSquare = document.getElementById(move);
+                const capturedPiece = targetSquare.firstChild ? this.pieces.find(p => p.element === targetSquare.firstChild) : null;
+                const capturedElement = capturedPiece ? capturedPiece.element : null;
+                targetSquare.appendChild(piece.element);
+                piece.parentSquare = targetSquare;
+                if (capturedPiece) {
+                    this.pieces = this.pieces.filter(p => p !== capturedPiece);
+                }
+                this.inCheck = false;
+                if (!this.isInCheck(color, this.pieces)) {
+                    legalMoves.push({ piece: piece, move: move });
+                }
+                originalSquare.appendChild(piece.element);
+                piece.parentSquare = originalSquare;
+                if (capturedPiece) {
+                    targetSquare.appendChild(capturedElement); 
+                    this.pieces.push(capturedPiece);
                 }
             }
         }
         return legalMoves;
-    }
+    }  
 
     makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves) {
-        console.log(pieceInstance);
-        console.log(destinationSquare.id);
         console.log(validMoves);
+        if(validMoves.length===0){
+            console.log("Checkmate!");
+        }
         let isValid = false;
         for (let move of validMoves) {
             if (move.piece === pieceInstance && move.move === destinationSquare.id) {
@@ -244,24 +246,67 @@ export class Board {
         if (isValid) {
             console.log("valid");
             pieceInstance.parentSquare = destinationSquare;
-            while (destinationSquare.firstChild) {
-                console.log(destinationSquare.firstChild);
-                destinationSquare.removeChild(destinationSquare.firstChild);
+            if (isSquareOccupied(destinationSquare) === "empty") {
+                destinationSquare.appendChild(piece);
+                this.isWhiteTurn = !this.isWhiteTurn;
+            } else {
+                while (destinationSquare.firstChild) {
+                    const removedPiece = destinationSquare.firstChild ? this.pieces.find(p => p.element === destinationSquare.firstChild) : null;
+                    this.pieces = this.pieces.filter(p => p !== removedPiece);
+                    destinationSquare.removeChild(destinationSquare.firstChild);
+                }
+                destinationSquare.appendChild(piece);
+                this.isWhiteTurn = !this.isWhiteTurn;
             }
-            destinationSquare.appendChild(piece);
-            this.isWhiteTurn = !this.isWhiteTurn;
         }
     }
 
+    getValidMovesWhenNotInCheck(color, piece, possibleMoves) {
+        const legalMoves = [];
+        for (let move of possibleMoves) {
+            const originalSquare = piece.parentSquare;
+            const targetSquare = document.getElementById(move);
+            const capturedPiece = targetSquare.firstChild ? this.pieces.find(p => p.element === targetSquare.firstChild) : null;
+            const capturedElement = capturedPiece ? capturedPiece.element : null;
+    
+            // Move the piece temporarily to the target square
+            piece.parentSquare = targetSquare;
+            if (capturedPiece) {
+                this.pieces = this.pieces.filter(p => p !== capturedPiece);
+            }
+    
+            // Check if the move would result in check
+            if (!this.isInCheck(color, this.pieces)) {
+                legalMoves.push(move);
+            }
+    
+            // Revert the move to restore the original state
+            piece.parentSquare = originalSquare;
+            if (capturedPiece && capturedElement) {
+                targetSquare.appendChild(capturedElement);
+                this.pieces.push(capturedPiece);
+            }
+        }
+        console.log(legalMoves);
+        return legalMoves;
+    }
+    
+        
     makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves) {
         if (possibleMoves.includes(destinationSquare.id)) {
             pieceInstance.parentSquare = destinationSquare;
-            while (destinationSquare.firstChild) {
-                console.log(destinationSquare.firstChild);
-                destinationSquare.removeChild(destinationSquare.firstChild);
+            if (isSquareOccupied(destinationSquare) === "empty") {
+                destinationSquare.appendChild(piece);
+                this.isWhiteTurn = !this.isWhiteTurn;
+            } else {
+                while (destinationSquare.firstChild) {
+                    const removedPiece = destinationSquare.firstChild ? this.pieces.find(p => p.element === destinationSquare.firstChild) : null;
+                    this.pieces = this.pieces.filter(p => p !== removedPiece);
+                    destinationSquare.removeChild(destinationSquare.firstChild);
+                }
+                destinationSquare.appendChild(piece);
+                this.isWhiteTurn = !this.isWhiteTurn;
             }
-            destinationSquare.appendChild(piece);
-            this.isWhiteTurn = !this.isWhiteTurn;
 
             if (pieceInstance.getType() === "White-Pawn" && pieceInstance.getRow() === 8 && pieceInstance.promoted === false) {
                 this.promote(pieceInstance, destinationSquare);
