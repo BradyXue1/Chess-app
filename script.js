@@ -1,3 +1,4 @@
+let Eddy=false;
 document.addEventListener("DOMContentLoaded", () => {
     const chessboardElement = document.getElementById("chessboard");
     const mode = prompt("Mode") || "Standard";
@@ -10,19 +11,25 @@ class ChessBoard {
         this.files = ["a", "b", "c", "d", "e", "f", "g", "h"];
         this.ranks = [8, 7, 6, 5, 4, 3, 2, 1];
         this.mode = mode;
+        this.Edison = prompt("Edison?") || "no";
+        if(this.Edison.toLowerCase()==="yes"){
+            Eddy=true;
+        }
         this.initBoard();
     }
 
     initBoard() {
         this.chessboardElement.innerHTML = ""; // Clear the board before rendering
+
         const startingPosition = this.getStartingPosition(this.mode);
 
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const square = this.createSquare(row, col);
                 const pieceType = startingPosition[row][col];
-
-                if (pieceType) {
+                if (pieceType && Eddy) {
+                    this.addPiece2(square, pieceType);
+                } else if (pieceType){
                     this.addPiece(square, pieceType);
                 }
 
@@ -58,6 +65,18 @@ class ChessBoard {
     addPiece(square, pieceType) {
         const piece = document.createElement("img");
         piece.src = `images/${pieceType}.png`;
+        piece.classList.add("piece", pieceType);
+
+        const [color, type] = pieceType.split("-");
+        piece.setAttribute("color", color);
+        piece.setAttribute("type", type);
+
+        square.appendChild(piece);
+    }
+
+    addPiece2(square, pieceType) {
+        const piece = document.createElement("img");
+        piece.src = `images2/${pieceType}.png`;
         piece.classList.add("piece", pieceType);
 
         const [color, type] = pieceType.split("-");

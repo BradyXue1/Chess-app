@@ -38,7 +38,7 @@ body {
 }
 
 .dark .file-label {
-    color:#f0d9b5;
+    color:#e56bcb;
 }
 
 .rank-label {
@@ -58,15 +58,14 @@ body {
 }
 
 .light {
-    background-color: #f0d9b5;
+    background-color: #ffdff8;
 }
 
 .dark {
-    background-color: #b58863;
+    background-color: #f09be9;
 }
 
 .piece {
-    width: 90%;
-    height: 90%;
-    object-fit: contain; /* Ensures images scale properly */
+    width: 100%;
+    height: 100%;
 }

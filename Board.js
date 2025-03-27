@@ -75,18 +75,19 @@ export class Board {
             if(this.isInCheck("White", this.pieces)){
                 console.log("white is in check!");
                 const validMoves=this.getValidMovesWhenInCheck("White");
+                console.log(validMoves);
                 this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves);
             }
             else {
                 const validMoves=this.getValidMovesWhenNotInCheck("White", pieceInstance, possibleMoves);
                 this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, validMoves);
-                console.log()
             }
         }
         if(!this.isWhiteTurn && pieceColor === "Black"){
             if(this.isInCheck("Black", this.pieces)){
                 console.log("Black is in check!");
                 const validMoves=this.getValidMovesWhenInCheck("Black");
+                console.log(validMoves);
                 this.makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves)
             }
             else {
@@ -94,6 +95,9 @@ export class Board {
                 this.makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, validMoves);
             }
         }
+        if(this.isCheckmate()){
+            console.log(this.isCheckmate());  
+        }   
     }
 
     promote(pawn, square){
@@ -131,6 +135,18 @@ export class Board {
             if (possibleMoves.includes(square)) {
                 return true;
             }
+        }
+        return false;
+    }
+    
+    isCheckmate() {
+        const whiteKing = this.pieces.find(p => p.getType() === "White-King");
+        const blackKing = this.pieces.find(p => p.getType() === "Black-King");
+        if (!whiteKing) {
+            return "Black wins by king capture (checkmate)";
+        }
+        if (!blackKing) {
+            return "White wins by king capture (checkmate)";
         }
         return false;
     }
@@ -204,6 +220,8 @@ export class Board {
 
     getValidMovesWhenInCheck(color) {
         const legalMoves = [];
+        const king = this.pieces.find(p => p.type === "king" && p.color === color); // Ensure you track the king
+    
         for (let piece of this.pieces) {
             if (piece.color !== color) continue;
             const possibleMoves = piece.getPossibleMoves(piece.parentSquare.id);
@@ -212,28 +230,34 @@ export class Board {
                 const targetSquare = document.getElementById(move);
                 const capturedPiece = targetSquare.firstChild ? this.pieces.find(p => p.element === targetSquare.firstChild) : null;
                 const capturedElement = capturedPiece ? capturedPiece.element : null;
+    
+                // Simulate move
                 targetSquare.appendChild(piece.element);
                 piece.parentSquare = targetSquare;
                 if (capturedPiece) {
                     this.pieces = this.pieces.filter(p => p !== capturedPiece);
                 }
-                this.inCheck = false;
+    
+                // Only add the move if it does not leave the king in check
                 if (!this.isInCheck(color, this.pieces)) {
                     legalMoves.push({ piece: piece, move: move });
                 }
+    
+                // Undo move
                 originalSquare.appendChild(piece.element);
                 piece.parentSquare = originalSquare;
                 if (capturedPiece) {
-                    targetSquare.appendChild(capturedElement); 
+                    targetSquare.appendChild(capturedElement);
                     this.pieces.push(capturedPiece);
                 }
             }
         }
+    
         return legalMoves;
-    }  
+    }
+     
 
     makeMoveWhenInCheck(piece, pieceInstance, destinationSquare, validMoves) {
-        console.log(validMoves);
         if(validMoves.length===0){
             console.log("Checkmate!");
         }
@@ -263,34 +287,33 @@ export class Board {
 
     getValidMovesWhenNotInCheck(color, piece, possibleMoves) {
         const legalMoves = [];
+        const originalSquare = piece.parentSquare; 
         for (let move of possibleMoves) {
-            const originalSquare = piece.parentSquare;
             const targetSquare = document.getElementById(move);
             const capturedPiece = targetSquare.firstChild ? this.pieces.find(p => p.element === targetSquare.firstChild) : null;
-            const capturedElement = capturedPiece ? capturedPiece.element : null;
-    
-            // Move the piece temporarily to the target square
+            originalSquare.removeChild(piece.element);
+            targetSquare.appendChild(piece.element);
             piece.parentSquare = targetSquare;
             if (capturedPiece) {
                 this.pieces = this.pieces.filter(p => p !== capturedPiece);
             }
-    
-            // Check if the move would result in check
-            if (!this.isInCheck(color, this.pieces)) {
+            const king = this.findKing(color);
+            console.log(`Checking if ${color} king is in check after move: `, this.isInCheck(color, this.pieces));
+            if (king && !this.isInCheck(color, this.pieces)) {
                 legalMoves.push(move);
             }
-    
-            // Revert the move to restore the original state
+            targetSquare.removeChild(piece.element);
+            originalSquare.appendChild(piece.element);
             piece.parentSquare = originalSquare;
-            if (capturedPiece && capturedElement) {
-                targetSquare.appendChild(capturedElement);
+            if (capturedPiece) {
+                targetSquare.appendChild(capturedPiece.element);
                 this.pieces.push(capturedPiece);
+                capturedPiece.parentSquare = targetSquare;
             }
-        }
-        console.log(legalMoves);
+        }    
         return legalMoves;
     }
-    
+
         
     makeMoveWhenNotInCheck(piece, pieceInstance, destinationSquare, possibleMoves) {
         if (possibleMoves.includes(destinationSquare.id)) {

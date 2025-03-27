@@ -32,13 +32,6 @@ export class King extends Piece {
         if(upAndRightSquare && isSquareOccupied(upAndRightSquare) === "White" && this.color === "Black"){
             moves.push(upAndRightMove);    
         }
-        const f2Square = document.getElementById("f2");
-        const f2Piece = f2Square.querySelector(".piece");
-        if(this.color === f2Piece?.getAttribute("color")){
-            moves=moves.filter(p => p !== "f2");
-        }
-
-
 
         let rightMove = `${String.fromCharCode(97 + column + 1)}${row}`;
         let rightSquare=document.getElementById(rightMove);
