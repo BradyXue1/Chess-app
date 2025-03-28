@@ -11,7 +11,7 @@ class ChessBoard {
         this.files = ["a", "b", "c", "d", "e", "f", "g", "h"];
         this.ranks = [8, 7, 6, 5, 4, 3, 2, 1];
         this.mode = mode;
-        this.Edison = prompt("Edison?") || "no";
+        this.Edison = prompt("Edison/Jesse Pieces?") || "no";
         if(this.Edison.toLowerCase()==="yes"){
             Eddy=true;
         }
