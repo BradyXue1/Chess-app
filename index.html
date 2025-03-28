@@ -11,12 +11,11 @@
     
     <script>
         function checkEdison() {
-            let answer = prompt("Edison?");
+            let answer = prompt("Edison Board?");
             if (answer && answer.toLowerCase() === "yes") {
                 document.getElementById("themeStylesheet").href = "edison-style.css";
             }
         }
-
         window.onload = checkEdison; // Run when the page loads
     </script>
 
